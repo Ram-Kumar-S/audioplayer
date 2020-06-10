@@ -1,0 +1,221 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1.0"
+    />
+    <title>My Audio Player</title>
+    <style>
+      #container {
+        width: 250px;
+        margin: 100px auto;
+        background-color: rgba(255, 106, 0, 0.5);
+        padding: 2em;
+      }
+      h2 {
+        text-align: center;
+      }
+      button {
+        background-size: 100% 100%;
+        width: 30px;
+        height: 30px;
+        border: none;
+        outline: none;
+        margin: 15px;
+        cursor: pointer;
+      }
+      #playpause {
+        background-image: url("images/play.png");
+      }
+
+      #mute {
+        background-image: url("images/mute.png");
+      }
+      #timeBox {
+        background-color: black;
+        color: blue;
+        padding: 0.75rem;
+        text-align: center;
+      }
+      select {
+        margin: 1em;
+        padding: 0.25em 0;
+        font-weight: bold;
+      }
+    </style>
+  </head>
+  <body>
+    <div id="container">
+      <h2>Audio Player</h2>
+      <button id="playpause"></button>
+      <input
+        type="range"
+        min="0"
+        max="100"
+        step="1"
+        id="seekController"
+        value="0"
+      />
+      <div id="timeBox">
+        <span id="currentTime">00.00</span> /
+        <span id="durationTime">00.00</span>
+      </div>
+      <button id="mute"></button>
+      <input
+        type="range"
+        min="0"
+        max="100"
+        step="1"
+        id="volume"
+        value="100"
+      />
+      <select name="" id="speedRate">
+        <option value="">Speed</option>
+        <option value="1">normal</option>
+        <option value="0.5">0.5</option>
+        <option value="1.5">1.5</option>
+        <option value="2">2</option>
+      </select>
+      <select name="" id="songsList">
+        <option value="">Songs List</option>
+        <option value="audios/Mirutha_Mirutha-Tnwap.Net.mp3"
+          >Mirutha Mirutha</option
+        >
+        <option value="audios/KANNALANE.mp3">Kannalane</option>
+        <option value="audios/Anjathe jeeva.mp3"
+          >Anjathe jeeva</option
+        >
+        <option
+          value="audios/Karuppu Nerathazhagi www.NetMachi.Com.mp3"
+          >Karupu Nerathalagi</option
+        >
+      </select>
+    </div>
+
+    <script>
+      let audio = new Audio();
+
+      audio.src = "./audios/Mirutha_Mirutha-Tnwap.Net.mp3";
+      audio.loop = true;
+      //   window.addEventListener("load", () => {
+      //     audio.play();
+      //   });
+
+      //====== play pause function =====//
+
+      let playPause = document.querySelector("button");
+
+      playPause.addEventListener("click", () => {
+        if (audio.paused) {
+          audio.play();
+          playPause.style.backgroundImage = "url('images/pause.png')";
+          playPause.style.webkitBackgroundSize = "100% 100%";
+        } else {
+          audio.pause();
+          playPause.style.backgroundImage = "url('images/play.png')";
+          playPause.style.webkitBackgroundSize = "100% 100%";
+        }
+      });
+
+      //====== mute unmute function =====//
+
+      let sound = document.getElementById("mute");
+
+      sound.addEventListener("click", () => {
+        if (audio.muted) {
+          audio.muted = false;
+          sound.style.backgroundImage = " url('images/mute.png')";
+          sound.style.backgroundSize = "100% 100%";
+        } else {
+          audio.muted = true;
+          sound.style.backgroundImage = "url('images/sound.jpg')";
+          sound.style.backgroundSize = "100% 100%";
+        }
+      });
+
+      //====== volume controller function =====//
+
+      let volumeController = document.getElementById("volume");
+
+      volumeController.addEventListener("mousemove", () => {
+        audio.volume = volumeController.value / 100;
+      });
+
+      //====== seeking controller function =====//
+
+      let seekController = document.getElementById("seekController");
+      let seeking;
+
+      seekController.addEventListener("mousedown", (event) => {
+        seeking = true;
+        seek(event);
+      });
+
+      seekController.addEventListener("mousemove", (event) => {
+        seek(event);
+      });
+
+      seekController.addEventListener("mouseup", () => {
+        seeking = false;
+      });
+
+      function seek(event) {
+        if (seeking) {
+          seekController.value =
+            event.clientX - seekController.offsetLeft;
+          let seekTo = audio.duration * (seekController.value / 100);
+          audio.currentTime = seekTo;
+          console.log(seekTo);
+        }
+      }
+
+      // ===== Seeking time duration ===== //
+      let currentTimeText = document.getElementById("currentTime");
+      let durationTimeText = document.getElementById("durationTime");
+
+      audio.addEventListener("timeupdate", () => {
+        let newTime = audio.currentTime * (100 / audio.duration);
+        seekController.value = newTime;
+        let curmins = Math.floor(audio.currentTime / 60);
+        let cursecs = Math.floor(audio.currentTime - curmins * 60);
+        let durmins = Math.floor(audio.duration / 60);
+        let dursecs = Math.floor(audio.duration - durmins * 60);
+        if (cursecs < 10) {
+          cursecs = "0" + cursecs;
+        }
+        if (curmins < 10) {
+          curmins = "0" + curmins;
+        }
+        if (dursecs < 10) {
+          dursecs = "0" + dursecs;
+        }
+        if (durmins < 10) {
+          durmins = "0" + durmins;
+        }
+        currentTimeText.textContent = curmins + ":" + cursecs;
+        durationTimeText.textContent = durmins + ":" + dursecs;
+      });
+
+      //===== Speed Rate ===== //
+
+      let speedRate = document.getElementById("speedRate");
+      speedRate.addEventListener("change", (event) => {
+        audio.playbackRate = event.target.value;
+      });
+
+      // =====songs List =====//
+
+      let songsList = document.getElementById("songsList");
+      songsList.addEventListener("change", (event) => {
+        audio.src = event.target.value;
+        audio.play();
+        if (!audio.paused) {
+          playPause.style.backgroundImage = "url('images/pause.png')";
+          playPause.style.webkitBackgroundSize = "100% 100%";
+        }
+      });
+    </script>
+  </body>
+</html>
